@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as file_:
     long_description = file_.read()
 
 setup(
-    name='MJ Helpers',
+    name='mj_helpers',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see

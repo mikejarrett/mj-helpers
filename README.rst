@@ -1,27 +1,33 @@
-# MJ Helpers
+MJ Helpers
+==========
 
 A collection of helper functions and decorators that I occasionally use to get
 my life in order.
 
-## profileit
+Installation
+------------
 
-Usage:
+    pip install mj_helpers
 
-``` python
-from profileit import profileit
+profileit
+--------
 
-@profileit
-def foo():
-    return do_stuff()
-```
+Usage::
 
-In a Python shell:
+    from profileit import profileit
+
+    @profileit
+    def foo():
+        return do_stuff()
+
+
+In a Python shell::
 
     >>> from .foo import foo
     >>> foo()
-	>>> form pstats import Stats
-	>>> stats = Stats('/tmp/foo.profile')
-	>>> stats.sort_stats('cumulative').print_stats(50)
+    >>> form pstats import Stats
+    >>> stats = Stats('/tmp/foo.profile')
+    >>> stats.sort_stats('cumulative').print_stats(50)
 
     Fri Nov 27 08:34:14 2015    /tmp/foo.profile
     2 function calls in 0.000 seconds
@@ -30,14 +36,19 @@ In a Python shell:
     ncalls  tottime  percall  cumtime  percall filename:lineno(function)
          1    0.000    0.000    0.000    0.000 <ipython-input-8-8f35865ca12d>:1(foo)
          1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+         
+If installed via pip or python setup.py::
 
-## log_it
+    mj_stats /tmp/foo.profile /tmp/bar.profile --sorting=cumulative --limit=50
 
-``` python
-from log_decorator import log_it
+log_it
+------
 
+In Python:: 
 
-class SomeClass(object):
+    from log_decorator import log_it
+    
+    class SomeClass(object):
 
     @staticmethod
     @log_it()
@@ -52,7 +63,8 @@ class SomeClass(object):
     @log_it():
     def bar(self, foo, spam='spam', eggs=None, *args, **kwargs):
         pass
-```
+        
+Console::
 
     >>> SomeClass.foo_static_method('bar')
     DEBUG:__main__:Entering foo(bar='bar', spam='spam', eggs=None)

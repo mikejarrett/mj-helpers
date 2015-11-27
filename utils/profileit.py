@@ -15,15 +15,16 @@ In a Python shell:
     >>> stats.sort_stats('cumulative').print_stats(50)
 
 """
-
-
-import cProfile
+try:
+    import cProfile as profile
+except ImportError:
+    import profile
 
 def profileit(func):
 
     def wrapper(*args, **kwargs):
         datafn = '/tmp/{0}.profile'.format(func.__name__)
-        prof = cProfile.Profile()
+        prof = profile.Profile()
         retval = prof.runcall(func, *args, **kwargs)
         prof.dump_stats(datafn)
 

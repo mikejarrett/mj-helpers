@@ -7,11 +7,13 @@ my life in order.
 
 Usage:
 
-    from profileit import profileit
+``` python
+from profileit import profileit
 
-    @profileit
-    def foo():
-        return do_stuff()
+@profileit
+def foo():
+    return do_stuff()
+```
 
 In a Python shell:
 
@@ -29,24 +31,28 @@ In a Python shell:
          1    0.000    0.000    0.000    0.000 <ipython-input-8-8f35865ca12d>:1(foo)
          1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
 
-## logit
+## log_it
+
+``` python
+from log_decorator import log_it
 
 
-    class SomeClass(object):
+class SomeClass(object):
 
-        @staticmethod
-        @log_it()
-        def foo_static_method(bar, spam='spam', eggs=None, *args, **kwargs):
-            pass
+    @staticmethod
+    @log_it()
+    def foo_static_method(bar, spam='spam', eggs=None, *args, **kwargs):
+        pass
 
-        @staticmethod
-        @log_it()
-        def foo_class_method(bar, spam='spam', eggs=None, *args, **kwargs):
-            pass
+    @staticmethod
+    @log_it()
+    def foo_class_method(bar, spam='spam', eggs=None, *args, **kwargs):
+        pass
 
-        @log_it():
-        def bar(self, foo, spam='spam', eggs=None, *args, **kwargs):
-            pass
+    @log_it():
+    def bar(self, foo, spam='spam', eggs=None, *args, **kwargs):
+        pass
+```
 
     >>> SomeClass.foo_static_method('bar')
     DEBUG:__main__:Entering foo(bar='bar', spam='spam', eggs=None)

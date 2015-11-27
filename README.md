@@ -62,6 +62,6 @@ class SomeClass(object):
     DEBUG:__main__:Entering foo(cls='cls', bar='bar', spam='spam', eggs=None)
     DEBUG:__main__:Exit foo -- Time in function: 0.00s
 
-    >>> SomeClass().bar('foo', *['spam_arg', 'eggs_arg'], a_kwarg='a_kwarg')
-    DEBUG:__main__:Entering bar(self='self', foo='foo', spam='spam_arg', eggs='eggs_arg', **{'a_kwarg': 'a_kwarg'})
+    >>> SomeClass().bar('foo', *['spam_arg', 'eggs_arg', 'another_arg'], a_kwarg='a_kwarg')
+    DEBUG:__main__:Entering bar(self='self', foo='foo', spam='spam_arg', eggs='eggs_arg', *('another_arg',), **{'a_kwarg': 'a_kwarg'})
     DEBUG:__main__:Exit bar -- Time in function: 0.00s

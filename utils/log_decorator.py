@@ -44,7 +44,7 @@ class log_it(object):
         def wrapper(*func_args, **func_kwargs):
             message = self.do_the_things(func, func_args, func_kwargs)
 
-            self.logger.DEBUG(self.ENTRY_MESSAGE.format(message))
+            self.logger.debug(self.ENTRY_MESSAGE.format(message))
 
             entry_time = time.time()
             f_result = func(*func_args, **func_kwargs)
@@ -53,7 +53,7 @@ class log_it(object):
             time_diff = exit_time - entry_time
 
             exit_message_args = (func.__name__, time_diff)
-            self.logger.DEBUG(self.EXIT_MESSAGE.format(*exit_message_args))
+            self.logger.debug(self.EXIT_MESSAGE.format(*exit_message_args))
             return f_result
 
         return wrapper
@@ -65,7 +65,7 @@ class log_it(object):
         my_kwargs = func_kwargs.copy()
 
         params = zip(arg_names, func_args)
-        params = self._handle_self_param(params)
+        params = self._handle_cls_and_self_params(params)
         params, remaining_kwargs = self._map_args_from_key_word_args(
             arg_names,
             my_kwargs,
@@ -85,9 +85,11 @@ class log_it(object):
 
         return self._get_log_message(func, params, extra_star_params)
 
-    def _handle_self_param(self, params):
+    def _handle_cls_and_self_params(self, params):
         if params and params[0][0] == 'self':
             params[0] = ('self', 'self')
+        if params and params[0][0] == 'cls':
+            params[0] = ('cls', 'cls')
 
         return params
 

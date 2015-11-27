@@ -44,9 +44,9 @@ class SomeClass(object):
     def foo_static_method(bar, spam='spam', eggs=None, *args, **kwargs):
         pass
 
-    @staticmethod
+    @classmethod
     @log_it()
-    def foo_class_method(bar, spam='spam', eggs=None, *args, **kwargs):
+    def foo_class_method(cls, bar, spam='spam', eggs=None, *args, **kwargs):
         pass
 
     @log_it():

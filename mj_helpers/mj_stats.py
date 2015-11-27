@@ -57,8 +57,7 @@ def print_sorting_options():
         print(table_break)
 
 
-
-if __name__ == '__main__':
+def main():
     description = 'Print the top 50 stats from the @profileit decorator'
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
@@ -86,3 +85,7 @@ if __name__ == '__main__':
 
     if args.filepath:
         print_stats(args.filepath, args.sorting, args.limit)
+
+
+if __name__ == '__main__':
+    main()

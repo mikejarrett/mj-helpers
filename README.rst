@@ -10,7 +10,7 @@ Installation
     pip install mj_helpers
 
 profileit
---------
+---------
 
 Usage::
 

@@ -14,7 +14,7 @@ profileit
 
 Usage::
 
-    from profileit import profileit
+    from mj_helpers.decorators import profileit
 
     @profileit
     def foo():
@@ -41,12 +41,12 @@ If installed via pip or python setup.py::
 
     mj_stats /tmp/foo.profile /tmp/bar.profile --sorting=cumulative --limit=50
 
-log_it
-------
+log_function_io
+---------------
 
 In Python:: 
 
-    from log_decorator import log_it
+    from mj_helpers.log_decorator import log_function_io
     
     class SomeClass(object):
 

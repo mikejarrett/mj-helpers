@@ -3,7 +3,7 @@
 A decorator to profile function calls.
 
 Usage:
-    from profileit import profileit
+    from mj_helpers.decorator import profileit
 
     @profileit
     def foo():

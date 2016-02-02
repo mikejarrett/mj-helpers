@@ -3,14 +3,23 @@
 Logging decorator that logs function name, args and kwargs.
 
 Usage:
-    from log_decorator import log_it
+    from decorators import log_function_io
 
-    @log_it()
+    @log_function_io()
     def foo(bar, spam=None, *args, **kwargs):
         return do_stuff()
+
+    >>> foo('a', *['first star', 'second star'], **{'something': 'boo'})
+    2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [ARG] bar: 'a', spam: 'first star', something: 'boo' *('second star',)
+    2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [RET] None
 """
+from collections import OrderedDict
+from functools import wraps
 import functools
+import inspect
+import itertools
 import logging
+import sys
 import time
 
 
@@ -18,108 +27,120 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
-class log_it(object):
+class CustomAdapter(logging.LoggerAdapter):
 
-    """ Logging decorator that allows you to log with a specific logger. """
+    """ Custom LoggerAdapter that adds metadata to the log message. """
 
-    ENTRY_MESSAGE = 'Entering {0}'
-    EXIT_MESSAGE = 'Exit {0} -- Time in function: {1:.2f}s'
+    skip_processing_tags = ('[ARG]', '[RET]', '[FUN]')
+    skip_msg_tag_tags = ('[POST]', '[GET]')
 
-    def __init__(self, logger=None):
-        self.logger = logger
+    def process(self, msg, kwargs):
+        """Adds additional metadata to log message.
 
-    def __call__(self, func):
+        Takes passed log message and adds additional metadata, like function
+        name and [FUN], [MSG] tags.
+
+        If `msg` already has tags specified in `skip_processing_tags`, it
+        returns original message.
+        If `msg` has tag from `skip_msg_tag_tags`, it only adds [FUN] tag and
+        skips adding [MSG] tag.
+
+        :param str msg: Log string to process
+        :param dict kwargs: Keyword arguments for log message
+        :return: Processed message and original keyword arguments
+        :rtype: tuple
         """
-        Returns a wrapper that wraps func.
+        def get_func_name():
+            stack = inspect.stack()
+            for index, frame in enumerate(stack):
+                if frame[3] == 'process':
+                    return stack[index + 2][3]
 
-        The wrapper will log the entry and exit points of the function
-        with logging.DEBUG level.
-        """
-        # Set logger if it was not set earlier
-        if not self.logger:
-            logging.basicConfig()
-            self.logger = logging.getLogger(func.__module__)
+        if any(tag in msg for tag in self.skip_processing_tags):
+            return msg, kwargs
+        elif any(tag in msg for tag in self.skip_msg_tag_tags):
+            msg = u'[FUN] {0} {1}'.format(get_func_name(), msg)
+        else:
+            msg = u'[FUN] {0} [MSG] {1}'.format(get_func_name(), msg)
 
-        @functools.wraps(func)
-        def wrapper(*func_args, **func_kwargs):
-            message = self.do_the_things(func, func_args, func_kwargs)
+        return msg, kwargs
 
-            self.logger.debug(self.ENTRY_MESSAGE.format(message))
 
-            entry_time = time.time()
-            f_result = func(*func_args, **func_kwargs)
-            exit_time = time.time()
+def get_logger_adapter(name):
+    """Returns Custom LoggerAdapter that adds '[MSG]' tag to log message.
 
-            time_diff = exit_time - entry_time
+    Function returns standard logger, if name of the module is
+    'log_decorator', because we don't wont to get this tag in
+    `log_function_io` decorator.
 
-            exit_message_args = (func.__name__, time_diff)
-            self.logger.debug(self.EXIT_MESSAGE.format(*exit_message_args))
-            return f_result
+    :param str name: Name of the module, for which to get logger
+    :return: Logger adapter for given module
+    :rtype: CustomAdapter
+    """
+    logger = logging.getLogger(name)
+    return CustomAdapter(logger, {})
 
-        return wrapper
 
-    def do_the_things(self, func, func_args, func_kwargs):
-        arg_names = func.__code__.co_varnames[:func.__code__.co_argcount]
+def log_function_io(f):
 
-        defaults = func.func_defaults or ()
-        my_kwargs = func_kwargs.copy()
+    log = getattr(
+        sys.modules[f.__module__],
+        'log',
+        get_logger_adapter(f.__module__)
+    )
 
-        params = zip(arg_names, func_args)
-        params = self._handle_cls_and_self_params(params)
-        params, remaining_kwargs = self._map_args_from_key_word_args(
-            arg_names,
-            my_kwargs,
-            params
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        passed_args = inspect.getargspec(f)[0]
+        args_name = list(
+            OrderedDict.fromkeys(passed_args + kwargs.keys())
         )
-        params = self._handle_default_arguments(
-            params,
-            arg_names,
-            defaults
-        )
-
-        extra_star_params = self._get_extra_star_params(
-            func_args,
-            arg_names,
-            remaining_kwargs
+        args_dict = OrderedDict(
+            list(itertools.izip(args_name, args)) +
+            list(kwargs.iteritems())
         )
 
-        return self._get_log_message(func, params, extra_star_params)
+        star_args = []
+        if args:
+            star_args = args[len(passed_args):]
 
-    def _handle_cls_and_self_params(self, params):
-        if params and params[0][0] == 'self':
-            params[0] = ('self', 'self')
-        if params and params[0][0] == 'cls':
-            params[0] = ('cls', 'cls')
+        # We don't care about `self` or `cls`
+        args_dict.pop('self', None)
+        args_dict.pop('cls', None)
 
-        return params
-
-    def _map_args_from_key_word_args(self, arg_names, my_kwargs, params):
-        for arg_name in arg_names:
-            if arg_name in my_kwargs:
-                params.append((arg_name, my_kwargs.pop(arg_name)))
-
-        return params, my_kwargs
-
-    def _handle_default_arguments(self, params, arg_names, defaults):
-        if len(params) <= len(arg_names):
-            params += zip(arg_names[len(params):], defaults)
-
-        return params
-
-    def _get_extra_star_params(self, func_args, params, my_kwargs):
-        extra_args = func_args[len(params):]
-        if extra_args:
-            extra_args = ((', *', extra_args),)
-
-        if my_kwargs:
-            extra_args += ((', **', my_kwargs),)
-
-        return extra_args
-
-    @staticmethod
-    def _get_log_message(func, params, extra_star_params):
-        return '{0}({1}{2})'.format(
-            func.__name__,
-            ', '.join('%s=%r' % param for param in params),
-            ''.join('%s%r' % param for param in extra_star_params)
+        # Build a log_message with argument name and value
+        log_args_message = ', '.join(
+            '{0}: %r'.format(arg_name.encode('utf-8'))
+            for arg_name in args_dict.keys()
         )
+
+        if log_args_message and not star_args:
+            log_args_message = '[FUN] {0} [ARG] {1} '.format(
+                f.func_name,
+                log_args_message
+            )
+        elif log_args_message and star_args:
+            log_args_message = '[FUN] {0} [ARG] {1} *{2}'.format(
+                f.func_name,
+                log_args_message,
+                star_args
+            )
+        else:
+            log_args_message = '[FUN] {0} [ARG] No arguments'.format(
+                f.func_name
+            )
+
+        log.debug(log_args_message, *args_dict.values())
+
+        return_value = f(*args, **kwargs)
+
+        log_return_value_message = '[FUN] {0} [RET] {1}'.format(
+            f.func_name,
+            repr(return_value).decode('utf-8')
+        )
+
+        log.debug(log_return_value_message)
+
+        return return_value
+
+    return wrapper

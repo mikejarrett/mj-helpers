@@ -82,14 +82,13 @@ Console::
     2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [RET] None
 
     >>> Bar.static_method('spam')
-    2016-02-02 05:09:30,426 - __main__ - DEBUG - [FUN] static_method [ARG] spam:
-    'spam' 2016-02-02 05:09:30,426 - __main__ - DEBUG - [FUN] static_method [RET] True
+    2016-02-02 05:09:30,426 - __main__ - DEBUG - [FUN] static_method [ARG] spam: 'spam'
+    2016-02-02 05:09:30,426 - __main__ - DEBUG - [FUN] static_method [RET] True
 
     >>> Bar.class_method(bar='spam')
-    2016-02-02 05:11:39,753 - __main__ - DEBUG - [FUN] class_method [ARG] bar:
-    'spam' 2016-02-02 05:11:39,753 - __main__ - DEBUG - [FUN] class_method [RET] False
+    2016-02-02 05:11:39,753 - __main__ - DEBUG - [FUN] class_method [ARG] bar: 'spam'
+    2016-02-02 05:11:39,753 - __main__ - DEBUG - [FUN] class_method [RET] False
 
     >>> Bar().function(thing='spam')
-    2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [ARG] thing:
-    'spam' 2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [RET] <__main__.Thing object at 0x7f33d8627f90>
-
+    2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [ARG] thing: 'spam'
+    2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [RET] <__main__.Thing object at 0x7f33d8627f90>

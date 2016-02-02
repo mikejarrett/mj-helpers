@@ -48,32 +48,48 @@ In Python::
 
     from mj_helpers.log_decorator import log_function_io
     
-    class SomeClass(object):
+    @log_function_io
+    def foo(bar, spam=None, *args, **kwargs):
+        return do_stuff()
 
-    @staticmethod
-    @log_it()
-    def foo_static_method(bar, spam='spam', eggs=None, *args, **kwargs):
+
+    class Thing(object):
         pass
 
-    @classmethod
-    @log_it()
-    def foo_class_method(cls, bar, spam='spam', eggs=None, *args, **kwargs):
-        pass
 
-    @log_it():
-    def bar(self, foo, spam='spam', eggs=None, *args, **kwargs):
-        pass
+    class Bar(object):
+
+        @staticmethod
+        @log_function_io
+        def static_method(spam, eggs='eggs'):
+            return True
+
+        @classmethod
+        @log_function_io
+        def class_method(cls, foo='foo', bar=None):
+            return False
+
+
+        @log_function_io
+        def function(self, thing):
+            return Thing()
+
         
 Console::
 
-    >>> SomeClass.foo_static_method('bar')
-    DEBUG:__main__:Entering foo(bar='bar', spam='spam', eggs=None)
-    DEBUG:__main__:Exit foo -- Time in function: 0.00s
+    >>> foo('a', *['first star', 'second star'], **{'something': 'boo'})
+    2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [ARG] bar: 'a', spam: 'first star', something: 'boo' *('second star',)
+    2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [RET] None
 
-    >>> SomeClass.foo_class_method('bar')
-    DEBUG:__main__:Entering foo(cls='cls', bar='bar', spam='spam', eggs=None)
-    DEBUG:__main__:Exit foo -- Time in function: 0.00s
+    >>> Bar.static_method('spam')
+    2016-02-02 05:09:30,426 - __main__ - DEBUG - [FUN] static_method [ARG] spam:
+    'spam' 2016-02-02 05:09:30,426 - __main__ - DEBUG - [FUN] static_method [RET] True
 
-    >>> SomeClass().bar('foo', *['spam_arg', 'eggs_arg', 'another_arg'], a_kwarg='a_kwarg')
-    DEBUG:__main__:Entering bar(self='self', foo='foo', spam='spam_arg', eggs='eggs_arg', *('another_arg',), **{'a_kwarg': 'a_kwarg'})
-    DEBUG:__main__:Exit bar -- Time in function: 0.00s
+    >>> Bar.class_method(bar='spam')
+    2016-02-02 05:11:39,753 - __main__ - DEBUG - [FUN] class_method [ARG] bar:
+    'spam' 2016-02-02 05:11:39,753 - __main__ - DEBUG - [FUN] class_method [RET] False
+
+    >>> Bar().function(thing='spam')
+    2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [ARG] thing:
+    'spam' 2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [RET] <__main__.Thing object at 0x7f33d8627f90>
+

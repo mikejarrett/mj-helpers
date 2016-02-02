@@ -25,7 +25,7 @@ log.setLevel(logging.DEBUG)
 
 class CustomAdapter(logging.LoggerAdapter):
 
-    """Custom LoggerAdapter that adds metadata to the log message."""
+    """ Custom LoggerAdapter that adds metadata to the log message. """
 
     skip_processing_tags = ('[ARG]', '[RET]', '[FUN]')
     skip_msg_tag_tags = ('[POST]', '[GET]')
@@ -55,9 +55,9 @@ class CustomAdapter(logging.LoggerAdapter):
         if any(tag in msg for tag in self.skip_processing_tags):
             return msg, kwargs
         elif any(tag in msg for tag in self.skip_msg_tag_tags):
-            msg = u'[FUN] {} {}'.format(get_func_name(), msg)
+            msg = u'[FUN] {0} {1}'.format(get_func_name(), msg)
         else:
-            msg = u'[FUN] {} [MSG] {}'.format(get_func_name(), msg)
+            msg = u'[FUN] {0} [MSG] {1}'.format(get_func_name(), msg)
 
         return msg, kwargs
 
@@ -87,13 +87,18 @@ def log_function_io(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
+        passed_args = inspect.getargspec(f)[0]
         args_name = list(
-            OrderedDict.fromkeys(inspect.getargspec(f)[0] + kwargs.keys())
+            OrderedDict.fromkeys(passed_args + kwargs.keys())
         )
         args_dict = OrderedDict(
             list(itertools.izip(args_name, args)) +
             list(kwargs.iteritems())
         )
+
+        star_args = []
+        if args:
+            star_args = args[len(passed_args):]
 
         # We don't care about `self` or `cls`
         args_dict.pop('self', None)
@@ -101,24 +106,31 @@ def log_function_io(f):
 
         # Build a log_message with argument name and value
         log_args_message = ', '.join(
-            '{}: %r'.format(arg_name.encode('utf-8'))
+            '{0}: %r'.format(arg_name.encode('utf-8'))
             for arg_name in args_dict.keys()
         )
 
-        if log_args_message:
-            log_args_message = '[FUN] {} [ARG] {} '.format(
+        if log_args_message and not star_args:
+            log_args_message = '[FUN] {0} [ARG] {1} '.format(
                 f.func_name,
                 log_args_message
             )
+        elif log_args_message and star_args:
+            log_args_message = '[FUN] {0} [ARG] {1} *{2}'.format(
+                f.func_name,
+                log_args_message,
+                star_args
+            )
         else:
-            log_args_message = '[FUN] {} [ARG] No arguments'.format(
+            log_args_message = '[FUN] {0} [ARG] No arguments'.format(
                 f.func_name
             )
+
         log.debug(log_args_message, *args_dict.values())
 
         return_value = f(*args, **kwargs)
 
-        log_return_value_message = '[FUN] {} [RET] {}'.format(
+        log_return_value_message = '[FUN] {0} [RET] {1}'.format(
             f.func_name,
             repr(return_value).decode('utf-8')
         )

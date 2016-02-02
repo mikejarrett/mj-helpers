@@ -1,4 +1,23 @@
 # -*- coding: utf-8 -*-
+"""
+Caching decorator to assist in caching function calls / returns.
+
+Usage:
+    from mj_helpers.decorators import cache_it
+
+    @cache_it()
+    def foo(bar, spam=None, *args, **kwargs):
+        return do_stuff()
+
+    # If using memoize instead of django's cache you can see the cache by:
+    >>> cache_it._cache
+    {
+        <function foo at 0x7f4419daa848>: {
+            "(('a', 'first star', 'second star'), (('something', 'boo'),))":
+            (None, 1454391947.614329)
+        }
+    }
+"""
 from functools import wraps
 import inspect
 import logging

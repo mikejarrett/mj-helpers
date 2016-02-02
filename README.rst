@@ -12,6 +12,8 @@ Installation
 profileit
 ---------
 
+A decorator to profile function calls.
+
 Usage::
 
     from mj_helpers.decorators import profileit
@@ -43,6 +45,8 @@ If installed via pip or python setup.py::
 
 log_function_io
 ---------------
+
+Logging decorator that logs function name, args and kwargs.
 
 In Python:: 
 
@@ -92,3 +96,25 @@ Console::
     >>> Bar().function(thing='spam')
     2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [ARG] thing: 'spam'
     2016-02-02 05:13:01,679 - __main__ - DEBUG - [FUN] function [RET] <__main__.Thing object at 0x7f33d8627f90>
+
+cache_it
+--------
+
+Caching decorator to assist in caching function calls / returns.
+
+In Python::
+
+    from mj_helpers.decorators import cache_it
+
+    @cache_it()
+    def foo(bar, spam=None, *args, **kwargs):
+        return do_stuff()
+
+    # If using memoize instead of django's cache you can see the cache by:
+    >>> cache_it._cache
+    {
+        <function foo at 0x7f4419daa848>: {
+            "(('a', 'first star', 'second star'), (('something', 'boo'),))":
+            (None, 1454391947.614329)
+        }
+    }

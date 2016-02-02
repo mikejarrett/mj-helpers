@@ -8,6 +8,10 @@ Usage:
     @log_function_io()
     def foo(bar, spam=None, *args, **kwargs):
         return do_stuff()
+
+    >>> foo('a', *['first star', 'second star'], **{'something': 'boo'})
+    2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [ARG] bar: 'a', spam: 'first star', something: 'boo' *('second star',)
+    2016-02-02 05:04:50,963 - __main__ - DEBUG - [FUN] foo [RET] None
 """
 from collections import OrderedDict
 from functools import wraps

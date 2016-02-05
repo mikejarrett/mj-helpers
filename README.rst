@@ -27,7 +27,7 @@ In a Python shell::
 
     >>> from .foo import foo
     >>> foo()
-    >>> form pstats import Stats
+    >>> from pstats import Stats
     >>> stats = Stats('/tmp/foo.profile')
     >>> stats.sort_stats('cumulative').print_stats(50)
 
